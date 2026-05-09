@@ -1,9 +1,9 @@
 'use strict';
 
 const express = require('express');
-const cors = require('cors');
-const session = require('express-session');
-const path = require('path');
+const cors    = require('cors');
+const path    = require('path');
+// Note: express-session removed — Vercel is stateless; board state is sent by client each request
 
 const gameRouter = require('./routes/game');
 const statsRouter = require('./routes/stats');
@@ -27,14 +27,6 @@ const ASCII_LOGO = `
 // ─── Middleware ─────────────────────────────────────────────────────────────
 app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json());
-app.use(
-  session({
-    secret: 'trimind-secret-key-2025',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }, // 24h
-  })
-);
 
 // ─── API Routes ─────────────────────────────────────────────────────────────
 app.use('/api/game', gameRouter);
@@ -48,9 +40,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
-// ─── Start Server ────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(ASCII_LOGO);
-  console.log(`\x1b[32m✓ TriMind AI server online at http://localhost:${PORT}\x1b[0m`);
-  console.log(`\x1b[36m✓ API available at http://localhost:${PORT}/api\x1b[0m\n`);
-});
+// ─── Local Dev: listen; Vercel Serverless: export ───────────────────────────
+if (require.main === module) {
+  // Running directly with `node backend/server.js` or `npm start`
+  app.listen(PORT, () => {
+    console.log(ASCII_LOGO);
+    console.log(`\x1b[32m✓ TriMind AI server online at http://localhost:${PORT}\x1b[0m`);
+    console.log(`\x1b[36m✓ API available at http://localhost:${PORT}/api\x1b[0m\n`);
+  });
+}
+
+// Required by Vercel: export the Express app as a serverless function handler
+module.exports = app;

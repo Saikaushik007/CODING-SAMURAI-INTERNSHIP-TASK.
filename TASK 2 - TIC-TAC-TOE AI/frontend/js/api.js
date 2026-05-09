@@ -1,5 +1,8 @@
 'use strict';
-const API_BASE = 'http://localhost:3000/api';
+// Auto-detect: use relative path on Vercel/production, fallback to localhost for local dev
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api'
+  : '/api';
 async function _req(method, path, body) {
   try {
     const opts = { method, credentials: 'include', headers: {} };
