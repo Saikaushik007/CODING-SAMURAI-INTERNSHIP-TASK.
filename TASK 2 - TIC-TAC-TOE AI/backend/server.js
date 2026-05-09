@@ -41,14 +41,21 @@ app.use('/api/game', gameRouter);
 app.use('/api/stats', statsRouter);
 
 // ─── Serve Frontend ─────────────────────────────────────────────────────────
-// In Vercel, static files are usually handled by the 'public' or vercel.json config,
-// but we keep this for local development.
-const frontendPath = path.join(__dirname, '..', 'frontend');
+// Use absolute paths to ensure Render finds the files correctly
+const frontendPath = path.resolve(__dirname, '..', 'frontend');
+console.log('[SERVER] Serving frontend from:', frontendPath);
+
 app.use(express.static(frontendPath));
 
 // Catch-all: serve index.html for SPA routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
+  const indexPath = path.join(frontendPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('[SERVER] Error sending index.html:', err.message);
+      res.status(404).send('Frontend files not found. Please check deployment structure.');
+    }
+  });
 });
 
 // ─── Local Dev: listen; Vercel Serverless: export ───────────────────────────
