@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TriMind AI — The ultimate cyberpunk Tic-Tac-Toe battle arena powered by unbeatable Minimax AI." />
+  <meta name="theme-color" content="#04040f" />
+  <title>TriMind AI — Neural Strategy Arena</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/board.css" />
+  <link rel="stylesheet" href="css/ui.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body data-theme="nexus" data-difficulty="hard">
+  <!-- Background layers -->
+  <canvas id="canvas-bg"            aria-hidden="true"></canvas>
+  <canvas id="particle-burst-layer" aria-hidden="true"></canvas>
+  <div id="screen-flash"            aria-hidden="true"></div>
+
+  <!-- ══ MAIN APP ═══════════════════════════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- ══ LEFT PANEL ══════════════════════════════════════════════════════ -->
+    <aside id="left-panel" aria-label="Game controls">
+
+      <!-- Logo -->
+      <div class="panel-section logo-section">
+        <div class="trimind-logo" role="banner">
+          <div class="logo-mark">T</div>
+          <div class="logo-text-group">
+            <div class="logo-main">TriMind AI</div>
+            <div class="logo-sub">NEURAL STRATEGY ARENA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro-divider"></div>
+
+      <!-- Game Mode -->
+      <div class="panel-section">
+        <div class="panel-label">GAME MODE</div>
+        <div class="mode-btn-group">
+          <button class="mode-btn active" id="mode-vs-ai"    data-mode="vs-ai">🤖 VS TriMind AI</button>
+          <button class="mode-btn"        id="mode-vs-human" data-mode="vs-human">👥 2 PLAYER</button>
+        </div>
+      </div>
+
+      <!-- Difficulty -->
+      <div class="panel-section" id="difficulty-section">
+        <div class="panel-label">DIFFICULTY</div>
+        <div class="diff-btn-group">
+          <button class="diff-btn easy"   id="diff-easy"   data-level="easy">EASY</button>
+          <button class="diff-btn medium" id="diff-medium" data-level="medium">MED</button>
+          <button class="diff-btn hard active" id="diff-hard" data-level="hard">HARD</button>
+        </div>
+      </div>
+
+      <!-- Board Size -->
+      <div class="panel-section">
+        <div class="panel-label">BOARD SIZE</div>
+        <div class="size-btn-group">
+          <button class="size-btn active" id="size-3" data-size="3">3×3</button>
+          <button class="size-btn"        id="size-4" data-size="4">4×4</button>
+          <button class="size-btn"        id="size-5" data-size="5">5×5</button>
+        </div>
+      </div>
+
+      <div class="micro-divider"></div>
+
+      <!-- Player Config -->
+      <div class="panel-section">
+        <div class="panel-label">YOUR CALLSIGN</div>
+        <div class="name-input-wrap">
+          <span class="name-icon">⚡</span>
+          <input type="text" id="player-name-input" maxlength="16" value="PLAYER"
+            aria-label="Player name" autocomplete="off" spellcheck="false" />
+        </div>
+      </div>
+
+      <!-- Rank Badge -->
+      <div class="panel-section" id="rank-section">
+        <div class="panel-label">RANK</div>
+        <div class="rank-badge" id="rank-badge">
+          <span class="rank-icon" id="rank-icon">🔰</span>
+          <span class="rank-name" id="rank-name">NOVICE</span>
+        </div>
+      </div>
+
+      <div class="micro-divider"></div>
+
+      <!-- Scoreboard -->
+      <div class="panel-section">
+        <div class="panel-label">SCOREBOARD</div>
+        <div class="score-row">
+          <div class="score-card player">
+            <div class="score-name" id="score-player-name">PLAYER</div>
+            <div class="score-value" id="score-player">0</div>
+            <div class="score-label">WINS</div>
+          </div>
+          <div class="score-card draws">
+            <div class="score-name">DRAW</div>
+            <div class="score-value" id="score-draws">0</div>
+            <div class="score-label">TIES</div>
+          </div>
+          <div class="score-card ai">
+            <div class="score-name">TriMind AI</div>
+            <div class="score-value" id="score-ai">0</div>
+            <div class="score-label">WINS</div>
+          </div>
+        </div>
+        <!-- Win Streak -->
+        <div class="streak-display" id="streak-display" style="display:none">
+          <span class="streak-fire">🔥</span>
+          <span class="streak-label">STREAK</span>
+          <span class="streak-count" id="streak-count">0</span>
+        </div>
+      </div>
+
+      <!-- Game History Dots -->
+      <div class="panel-section">
+        <div class="panel-label">MATCH HISTORY</div>
+        <div id="game-history" role="list"></div>
+      </div>
+
+      <div class="micro-divider"></div>
+
+      <!-- Action Buttons -->
+      <div class="panel-section" id="action-btns">
+        <button class="action-btn primary"  id="btn-new-game">▶ NEW GAME</button>
+        <button class="action-btn accent"   id="btn-replay" style="display:none">↻ REPLAY</button>
+        <div class="btn-row">
+          <button class="action-btn gold"   id="btn-reset-stats">↺ RESET</button>
+          <button class="action-btn purple" id="btn-sound-toggle">🔊 SFX</button>
+          <button class="action-btn purple" id="btn-theme-toggle" title="Switch Theme">🎨</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ══ CENTER PANEL ═════════════════════════════════════════════════════ -->
+    <main id="center-panel" aria-label="Game arena">
+
+      <!-- Status Pill -->
+      <div id="status-pill" role="status" aria-live="polite">
+        <div class="turn-indicator" id="turn-orb"></div>
+        <div class="status-text" id="status-text">PRESS NEW GAME TO BEGIN</div>
+        <div class="thinking-dots hidden" id="thinking-dots" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Move Timer Bar -->
+      <div id="timer-bar-wrap" class="hidden">
+        <div id="timer-bar"></div>
+        <span id="timer-label">10</span>
+      </div>
+
+      <!-- Board -->
+      <div id="board-container">
+        <div id="game-board" role="grid" aria-label="Game board"></div>
+        <div id="win-line-container" aria-hidden="true"></div>
+        <!-- SVG grid lines overlay -->
+        <svg id="board-grid-svg" aria-hidden="true"></svg>
+      </div>
+
+      <!-- Board action row (hint, undo, move count) -->
+      <div id="board-actions">
+        <button class="board-action-btn hint-btn" id="btn-hint" title="Best Move Hint (H)">
+          💡 HINT <span class="badge" id="hints-left">3</span>
+        </button>
+        <div id="move-counter">
+          <span class="move-label">MOVE</span>
+          <span id="move-count">0</span>
+          <span class="move-label">/ <span id="move-max">9</span></span>
+        </div>
+        <button class="board-action-btn undo-btn" id="btn-undo" title="Undo Move (U)">
+          ↩ UNDO <span class="badge" id="undos-left">2</span>
+        </button>
+      </div>
+
+      <!-- AI Taunt Box -->
+      <div id="ai-taunt-box" role="log" aria-live="polite">
+        <div class="taunt-icon" id="ai-avatar">🧠</div>
+        <div class="taunt-text" id="taunt-text">TriMind AI is online. Are you ready?</div>
+      </div>
+
+      <!-- Mobile Tab Bar -->
+      <div id="mobile-tab-bar" role="tablist">
+        <button class="tab-btn active" id="tab-board"   role="tab">🎮 Board</button>
+        <button class="tab-btn"        id="tab-stats"   role="tab">📊 Stats</button>
+        <button class="tab-btn"        id="tab-history" role="tab">📜 History</button>
+      </div>
+    </main>
+
+    <!-- ══ RIGHT PANEL ══════════════════════════════════════════════════════ -->
+    <aside id="right-panel" aria-label="Statistics">
+
+      <!-- Combat Stats -->
+      <div class="panel-section">
+        <div class="panel-label">COMBAT STATS</div>
+        <!-- Win Rate Bar -->
+        <div class="win-rate-bar-wrap">
+          <div class="wr-label-row">
+            <span class="wr-label">WIN RATE</span>
+            <span class="wr-pct" id="win-rate-pct">0%</span>
+          </div>
+          <div class="win-rate-track">
+            <div class="win-rate-fill" id="win-rate-fill"></div>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item" id="stat-total">
+            <span class="stat-val" id="total-games">0</span>
+            <span class="stat-key">TOTAL GAMES</span>
+          </div>
+          <div class="stat-item" id="stat-streak">
+            <span class="stat-val" id="best-streak">0</span>
+            <span class="stat-key">BEST STREAK</span>
+          </div>
+          <div class="stat-item" id="stat-timer">
+            <span class="stat-val" id="avg-moves">-</span>
+            <span class="stat-key">AVG MOVES</span>
+          </div>
+          <div class="stat-item" id="stat-difficulty-count">
+            <span class="stat-val" id="hard-wins">0</span>
+            <span class="stat-key">HARD WINS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Graph -->
+      <div class="panel-section">
+        <div class="panel-label">LAST 20 GAMES</div>
+        <canvas id="stats-graph" width="240" height="80" aria-label="Win/Loss history graph"></canvas>
+      </div>
+
+      <div class="micro-divider"></div>
+
+      <!-- Move Log -->
+      <div class="panel-section">
+        <div class="panel-label">MOVE LOG</div>
+        <div id="move-history" role="log"></div>
+      </div>
+
+      <!-- Timer Setting -->
+      <div class="panel-section">
+        <div class="panel-label">MOVE TIMER</div>
+        <div class="timer-btn-group">
+          <button class="timer-btn active" data-timer="0">OFF</button>
+          <button class="timer-btn" data-timer="10">10s</button>
+          <button class="timer-btn" data-timer="20">20s</button>
+          <button class="timer-btn" data-timer="30">30s</button>
+        </div>
+      </div>
+
+      <div class="micro-divider"></div>
+
+      <!-- Achievements -->
+      <div class="panel-section">
+        <div class="panel-label">ACHIEVEMENTS</div>
+        <div id="achievements-grid"></div>
+      </div>
+
+      <!-- How To Play -->
+      <div class="panel-section">
+        <button class="collapsible-header" id="rules-toggle" aria-expanded="false">
+          <span>HOW TO PLAY</span>
+          <span class="collapse-icon">▼</span>
+        </button>
+        <div class="collapsible-body" id="rules-body" style="display:none">
+          <ul class="rules-list">
+            <li>⚡ Click a cell to place your mark</li>
+            <li>🧠 TriMind AI responds on its turn</li>
+            <li>🎯 Get 3 in straight, backwards, or diagonals to win</li>
+            <li>💡 Use HINT for best move (3/game)</li>
+            <li>↩ UNDO to revert a move (2/game)</li>
+            <li>🎨 Switch themes with the palette button</li>
+          </ul>
+          <div class="keyboard-legend">
+            <div class="kb-title">KEYBOARD SHORTCUTS</div>
+            <div class="kb-grid">
+              <span class="kb-key">1-9</span><span>Board cells</span>
+              <span class="kb-key">N</span><span>New Game</span>
+              <span class="kb-key">H</span><span>Hint</span>
+              <span class="kb-key">U</span><span>Undo</span>
+              <span class="kb-key">S</span><span>Sound</span>
+              <span class="kb-key">T</span><span>Theme</span>
+              <span class="kb-key">ESC</span><span>Close modal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- ══ COIN TOSS MODAL ═══════════════════════════════════════════════════ -->
+  <div id="coin-toss-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Pre-game setup">
+    <div class="modal-backdrop"></div>
+    <div class="setup-card">
+      <h2 class="setup-title">BATTLE SETUP</h2>
+
+      <!-- Symbol Choice -->
+      <div class="setup-section">
+        <div class="setup-label">CHOOSE YOUR SYMBOL</div>
+        <div class="symbol-choice-group">
+          <button class="symbol-choice active" id="pick-x" data-symbol="X">
+            <svg viewBox="0 0 100 100" class="choice-mark mark-x">
+              <line x1="18" y1="18" x2="82" y2="82"/>
+              <line x1="82" y1="18" x2="20" y2="82"/>
+            </svg>
+            <span>CRIMSON X</span>
+          </button>
+          <button class="symbol-choice coin-btn" id="btn-coin-toss">
+            <div class="coin" id="coin">
+              <div class="coin-face front">?</div>
+              <div class="coin-face back">!</div>
+            </div>
+            <span>COIN TOSS</span>
+          </button>
+          <button class="symbol-choice" id="pick-o" data-symbol="O">
+            <svg viewBox="0 0 100 100" class="choice-mark mark-o">
+              <circle cx="50" cy="50" r="34"/>
+            </svg>
+            <span>CYAN O</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Who Goes First -->
+      <div class="setup-section" id="first-mover-section">
+        <div class="setup-label">WHO GOES FIRST?</div>
+        <div class="first-btn-group">
+          <button class="first-btn active" id="first-player">⚡ I GO FIRST</button>
+          <button class="first-btn"        id="first-ai">🧠 TRIMIND FIRST</button>
+        </div>
+      </div>
+
+      <button class="action-btn primary launch-btn" id="btn-launch-game">▶ LAUNCH BATTLE</button>
+    </div>
+  </div>
+
+  <!-- ══ RESULT MODAL ══════════════════════════════════════════════════════ -->
+  <div id="result-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <div class="modal-glow-ring" id="modal-glow-ring"></div>
+      <div class="modal-icon" id="modal-icon">🏆</div>
+      <h2 class="modal-title" id="modal-title">VICTORY</h2>
+      <p class="modal-taunt" id="modal-taunt"></p>
+
+      <div class="modal-stats-row">
+        <div class="modal-stat"><span id="modal-duration">0s</span><label>Duration</label></div>
+        <div class="modal-stat"><span id="modal-moves">0</span><label>Moves</label></div>
+        <div class="modal-stat"><span id="modal-difficulty">HARD</span><label>Difficulty</label></div>
+      </div>
+
+      <!-- Post-game analysis -->
+      <div id="post-game-analysis" class="analysis-box"></div>
+
+      <div class="modal-btns">
+        <button id="modal-play-again" class="action-btn primary">▶ PLAY AGAIN</button>
+        <button id="modal-replay"     class="action-btn accent">↻ REPLAY</button>
+        <button id="modal-menu"       class="action-btn secondary">⟵ MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ACHIEVEMENT TOAST ════════════════════════════════════════════════ -->
+  <div id="achievement-popup" class="hidden" aria-live="assertive">
+    <div class="ach-icon" id="ach-icon">🏅</div>
+    <div class="ach-text">
+      <div class="ach-title">ACHIEVEMENT UNLOCKED</div>
+      <div class="ach-name" id="ach-name"></div>
+    </div>
+  </div>
+
+  <!-- ══ TOAST CONTAINER ══════════════════════════════════════════════════ -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts — order matters -->
+  <script src="js/particles.js"></script>
+  <script src="js/soundEngine.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/statsUI.js"></script>
+  <script src="js/boardUI.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

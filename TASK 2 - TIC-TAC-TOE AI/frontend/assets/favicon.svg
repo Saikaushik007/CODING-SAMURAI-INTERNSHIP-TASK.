@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#ff3366"/>
+      <stop offset="50%"  stop-color="#bf5fff"/>
+      <stop offset="100%" stop-color="#00f5ff"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Outer hexagon border -->
+  <polygon points="32,4 56,18 56,46 32,60 8,46 8,18"
+    stroke="url(#g)" stroke-width="2" fill="rgba(4,4,15,0.9)" filter="url(#glow)"/>
+  <!-- N letter -->
+  <text x="10" y="44" font-family="Arial Black,sans-serif" font-size="32" font-weight="900"
+    fill="url(#g)" filter="url(#glow)">N</text>
+</svg>
