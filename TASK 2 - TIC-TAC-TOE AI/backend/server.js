@@ -29,15 +29,19 @@ app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json());
 
 // ─── API Routes ─────────────────────────────────────────────────────────────
+app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 app.use('/api/game', gameRouter);
 app.use('/api/stats', statsRouter);
 
 // ─── Serve Frontend ─────────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+// In Vercel, static files are usually handled by the 'public' or vercel.json config,
+// but we keep this for local development.
+const frontendPath = path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendPath));
 
 // Catch-all: serve index.html for SPA routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 // ─── Local Dev: listen; Vercel Serverless: export ───────────────────────────

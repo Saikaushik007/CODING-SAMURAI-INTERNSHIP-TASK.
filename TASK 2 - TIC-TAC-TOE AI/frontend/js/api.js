@@ -1,16 +1,28 @@
 'use strict';
-// Auto-detect: use relative path on Vercel/production, fallback to localhost for local dev
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000/api'
   : '/api';
+
+console.log('[NEXUS] API Base:', API_BASE);
+
 async function _req(method, path, body) {
   try {
     const opts = { method, credentials: 'include', headers: {} };
     if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-    const res = await fetch(API_BASE + path, opts);
-    if (!res.ok) { const t = await res.text(); throw new Error(`HTTP ${res.status}: ${t}`); }
+    
+    const url = API_BASE + path;
+    const res = await fetch(url, opts);
+    
+    if (!res.ok) { 
+      const t = await res.text(); 
+      console.error(`[API ERROR] ${method} ${url} -> ${res.status}`, t);
+      throw new Error(`HTTP ${res.status}: ${t}`); 
+    }
     return await res.json();
-  } catch (e) { console.error('[API]', method, path, e.message); return { error: true, message: e.message }; }
+  } catch (e) { 
+    console.error(`[API FATAL] ${method} ${path}:`, e.message); 
+    return { error: true, message: e.message }; 
+  }
 }
 const post   = (p, b) => _req('POST',   p, b);
 const get    = (p)    => _req('GET',    p);
