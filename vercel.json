@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "name": "trimind-ai",
+  "builds": [
+    {
+      "src": "TASK 2 - TIC-TAC-TOE AI/backend/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "TASK 2 - TIC-TAC-TOE AI/frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "TASK 2 - TIC-TAC-TOE AI/backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "TASK 2 - TIC-TAC-TOE AI/frontend/$1"
+    }
+  ]
+}
