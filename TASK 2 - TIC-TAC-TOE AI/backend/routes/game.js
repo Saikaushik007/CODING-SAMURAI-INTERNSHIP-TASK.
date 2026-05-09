@@ -21,8 +21,14 @@ const randDelay = d => {
 router.post('/new', (req, res) => {
   const { difficulty = 'hard', playerName = 'PLAYER', boardSize = 3 } = req.body;
   const size = parseInt(boardSize, 10) || 3;
-  const board = createEmptyBoard(size);
-  res.json({ board, taunt: getRandomTaunt('gameStart'), boardSize: size });
+
+  req.session.board       = createEmptyBoard(size);
+  req.session.difficulty  = difficulty;
+  req.session.playerName  = playerName;
+  req.session.boardSize   = size;
+  req.session.moveHistory = [];
+
+  res.json({ board: req.session.board, taunt: getRandomTaunt('gameStart'), boardSize: size });
 });
 
 /* POST /api/game/move ─────────────────────────────────────────────────────── */
@@ -48,6 +54,7 @@ router.post('/move', (req, res) => {
   }
 
   const taunt = getContextualTaunt(newBoard, aiMove, status.status, difficulty);
+  req.session.board = newBoard;
 
   res.json({
     board: newBoard, playerMove, aiMove,
@@ -67,6 +74,7 @@ router.post('/ai-first', (req, res) => {
   if (aiMove !== -1 && aiMove !== null) newBoard = applyMove(board, aiMove, aiSymbol);
 
   const status = getGameStatus(newBoard, size);
+  req.session.board = newBoard;
 
   res.json({
     board: newBoard, aiMove,
@@ -90,12 +98,11 @@ router.post('/hint', (req, res) => {
 
 /* GET /api/game/state ──────────────────────────────────────────────── */
 router.get('/state', (req, res) => {
-  // Stateless — client maintains board state; return defaults only
   res.json({
-    board:      createEmptyBoard(),
-    difficulty: 'hard',
-    playerName: 'PLAYER',
-    boardSize:  3,
+    board:      req.session.board      || createEmptyBoard(),
+    difficulty: req.session.difficulty || 'hard',
+    playerName: req.session.playerName || 'PLAYER',
+    boardSize:  req.session.boardSize  || 3,
   });
 });
 

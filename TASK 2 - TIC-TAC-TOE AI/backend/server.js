@@ -2,8 +2,8 @@
 
 const express = require('express');
 const cors    = require('cors');
+const session = require('express-session');
 const path    = require('path');
-// Note: express-session removed — Vercel is stateless; board state is sent by client each request
 
 const gameRouter = require('./routes/game');
 const statsRouter = require('./routes/stats');
@@ -27,9 +27,16 @@ const ASCII_LOGO = `
 // ─── Middleware ─────────────────────────────────────────────────────────────
 app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json());
+app.use(
+  session({
+    secret: 'trimind-secret-key-2025',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 },
+  })
+);
 
 // ─── API Routes ─────────────────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 app.use('/api/game', gameRouter);
 app.use('/api/stats', statsRouter);
 
