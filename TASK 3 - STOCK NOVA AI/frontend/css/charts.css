@@ -1,0 +1,58 @@
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.chart-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+}
+
+#price-chart-container { height: 380px; }
+#rsi-chart-container { height: 140px; margin-top: 20px; }
+#macd-chart-container { height: 140px; margin-top: 20px; }
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-line {
+  width: 16px;
+  height: 2px;
+}
+
+.legend-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.chart-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+}

@@ -1,0 +1,269 @@
+#dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* TOP METRICS ROW (4 Cards) */
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.metric-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 14px 16px;
+    position: relative;
+    box-shadow: var(--shadow-main);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.metric-card.score-high {
+    border-color: var(--bull-green);
+}
+.metric-card.score-high .card-value {
+    color: var(--bull-green);
+}
+.metric-card.score-med {
+    border-color: var(--accent-gold);
+}
+.metric-card.score-med .card-value {
+    color: var(--accent-gold);
+}
+.metric-card.score-low {
+    border-color: var(--bear-red);
+}
+.metric-card.score-low .card-value {
+    color: var(--bear-red);
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--glow-dynamic);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.card-title {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-left: 3px solid var(--live-accent);
+    padding-left: 6px;
+}
+
+.card-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+.card-badge.red {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+}
+
+.card-badge.blue {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--predict-blue);
+}
+
+.card-badge.yellow {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--accent-orange);
+}
+
+.card-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    z-index: 2;
+}
+
+.sparkline-container {
+    height: 40px;
+    width: 100%;
+    margin-top: auto;
+    z-index: 1;
+}
+
+/* MIDDLE CHARTS ROW */
+.charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+.panel-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow-main), var(--glow-dynamic);
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s ease;
+}
+
+.panel-card:hover {
+    border-color: var(--live-accent);
+}
+
+.panel-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-left: 3px solid var(--live-accent);
+    padding-left: 8px;
+}
+
+.chart-wrap {
+    flex: 1;
+    min-height: 250px;
+    position: relative;
+    width: 100%;
+}
+
+.donut-wrap {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-verdict {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* BOTTOM ROW */
+.bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.pred-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.pred-table th {
+    text-align: left;
+    padding: 7px 0;
+    color: var(--text-muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-subtle);
+    text-transform: uppercase;
+}
+
+.pred-table td {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+.pred-table tr:last-child td {
+    border-bottom: none;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.compare-card {
+    background: rgba(2, 4, 10, 0.6);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.compare-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--predict-blue);
+}
+
+.compare-card.best {
+    border-color: var(--predict-blue);
+    background: linear-gradient(180deg, rgba(6, 182, 212, 0.1), rgba(6, 182, 212, 0.02));
+    box-shadow: inset 0 2px 10px rgba(6, 182, 212, 0.1);
+}
+
+.comp-model {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.comp-score {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary);
+}
+
+.comp-best {
+    color: var(--live-accent);
+}
+
+/* MICRO BARS for Stats */
+.micro-bar-bg {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.micro-bar-fill {
+    height: 100%;
+    background: var(--live-accent);
+    border-radius: 2px;
+}
+
+/* TECH ROW */
+.tech-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.tech-wrap {
+    min-height: 220px;
+}

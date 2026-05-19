@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOCKNOVA | Professional Terminal</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Background Particle Stream -->
+    <canvas id="bg-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0.6;"></canvas>
+
+    <!-- Ticker Tape -->
+    <div class="ticker-tape">
+        <div class="ticker-content" id="live-ticker-tape">
+            <span>AAPL: +1.2%</span>
+            <span>TSLA: -0.4%</span>
+            <span>NVDA: +3.8%</span>
+            <span>MSFT: +0.2%</span>
+            <span>BTC-USD: +2.1%</span>
+        </div>
+    </div>
+
+    <div id="layout-wrapper" style="padding-top: 30px;">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar">
+            <div class="sidebar-brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--predict-blue);"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <span>StockNova</span>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">TERMINAL</div>
+                
+                <div class="sidebar-item search-box">
+                    <input type="text" id="ticker-input" placeholder="Enter Ticker (e.g. AAPL)" autocomplete="off">
+                    <button id="search-btn">Analyze</button>
+                    <div id="search-suggestions"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">QUICK WATCHLIST</div>
+                <div class="pill-list horizontal" id="watchlist-selector">
+                    <button class="sidebar-pill" data-ticker="AAPL">AAPL</button>
+                    <button class="sidebar-pill" data-ticker="TSLA">TSLA</button>
+                    <button class="sidebar-pill" data-ticker="NVDA">NVDA</button>
+                    <button class="sidebar-pill" data-ticker="BTC-USD">BTC</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">ML ENGINE</div>
+                <div class="pill-list" id="model-selector">
+                    <button class="sidebar-pill active" data-model="linear">Linear Regression</button>
+                    <button class="sidebar-pill" data-model="polynomial">Polynomial Reg.</button>
+                    <button class="sidebar-pill" data-model="neural">Neural Network</button>
+                    <button class="sidebar-pill" data-model="random_forest">Random Forest</button>
+                    <button class="sidebar-pill" data-model="gradient_boosting">Gradient Boost</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">TIMEFRAME</div>
+                <div class="pill-list horizontal" id="period-selector">
+                    <button class="sidebar-pill" data-period="1mo">1M</button>
+                    <button class="sidebar-pill" data-period="6mo">6M</button>
+                    <button class="sidebar-pill active" data-period="1y">1Y</button>
+                    <button class="sidebar-pill" data-period="2y">2Y</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard -->
+        <main id="main-content">
+            <header id="top-header">
+                <div>
+                    <h1 id="greeting">Good evening, Admin</h1>
+                    <p>Here is your financial security overview for today</p>
+                </div>
+                <div class="header-actions">
+                    <div class="status-badge" id="hero-status">
+                        <span class="dot"></span> AWAITING TICKER
+                    </div>
+                    <div class="status-badge live">
+                        <span class="dot live-dot"></span> LIVE DATA
+                    </div>
+                </div>
+            </header>
+
+            <div id="dashboard-grid" style="display: none;">
+                <!-- Top Metrics Row -->
+                <div class="metrics-row">
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <span class="card-title">CURRENT PRICE</span>
+                            <span class="card-badge" id="hero-change">+0.00%</span>
+                        </div>
+                        <div class="card-value" id="hero-price">$0.00</div>
+                        <div class="micro-bar-bg">
+                            <div class="micro-bar-fill" id="bar-price" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <span class="card-title">MEAN ABS ERROR</span>
+                            <span class="card-badge red" id="mae-trend">0.00</span>
+                        </div>
+                        <div class="card-value" id="metric-mae">$0.00</div>
+                        <div class="micro-bar-bg">
+                            <div class="micro-bar-fill" id="bar-mae" style="width: 20%; background: var(--bear-red);"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <span class="card-title">ROOT MEAN SQ ERROR</span>
+                            <span class="card-badge blue" id="rmse-trend">0.00</span>
+                        </div>
+                        <div class="card-value" id="metric-rmse">$0.00</div>
+                        <div class="micro-bar-bg">
+                            <div class="micro-bar-fill" id="bar-rmse" style="width: 30%; background: var(--bear-red);"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <span class="card-title">R² SCORE (ACCURACY)</span>
+                            <span class="card-badge yellow" id="r2-trend">0.00</span>
+                        </div>
+                        <div class="card-value" id="metric-r2">0.00</div>
+                        <div class="micro-bar-bg">
+                            <div class="micro-bar-fill" id="bar-r2" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Charts Row -->
+                <div class="charts-row">
+                    <div class="panel-card timeline-panel">
+                        <div class="panel-header">Price Activity Timeline</div>
+                        <div class="chart-wrap" id="price-chart-container">
+                            <canvas id="price-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-card distribution-panel">
+                        <div class="panel-header">Prediction Distribution</div>
+                        <div class="chart-wrap donut-wrap" id="donut-chart-container">
+                            <canvas id="donut-chart"></canvas>
+                        </div>
+                        <div id="model-verdict" class="donut-verdict">AWAITING</div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row -->
+                <div class="bottom-row">
+                    <div class="panel-card">
+                        <div class="panel-header">7-Day AI Forecast</div>
+                        <table class="pred-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Target Prediction</th>
+                                    <th>Confidence Band</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prediction-table-body"></tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="panel-card">
+                        <div class="panel-header">Cross-Model Evaluation</div>
+                        <div id="comparison-grid" class="comparison-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Technical Analysis Row -->
+                <div class="tech-row">
+                    <div class="panel-card">
+                        <div class="panel-header">Relative Strength Index (RSI)</div>
+                        <div class="chart-wrap tech-wrap">
+                            <canvas id="rsi-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-card">
+                        <div class="panel-header">MACD Momentum</div>
+                        <div class="chart-wrap tech-wrap">
+                            <canvas id="macd-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loading-msg">INITIALIZING NEURAL NET...</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/particles.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/chartEngine.js"></script>
+    <script src="js/dashboardUI.js"></script>
+    <script src="js/searchUI.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
